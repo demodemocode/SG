@@ -1,0 +1,94 @@
+package os;
+
+import java.util.Arrays;
+import java.util.LinkedList;
+import java.util.Queue;
+import java.util.Scanner;
+
+import os.P.pro;
+
+public class Assignmet2_3 {
+	 static class pro {
+	        String name;
+	        int at, bt, st, ft, tat, wt, flag, rbt;
+
+	        @Override
+	        public String toString() {
+	            return "pro [name=" + name + ", at=" + at + ", bt=" + bt + ", st=" + st + ", ft=" + ft + ", tat=" + tat
+	                    + ", wt=" + wt + "]";
+	        }
+	        pro() {
+	            name = "";
+	            at = bt = st = ft = tat = wt = flag = rbt = 0;
+	        }
+	    }
+
+	    public static void main(String[] args) {
+	        Scanner sc = new Scanner(System.in);
+
+	        System.out.println("Enter the process number");
+	        int n = sc.nextInt();
+	        System.out.println("Enter the tq");
+	        int tq = sc.nextInt();
+	        pro[] pr = new pro[n];
+	        Queue<Integer> q = new LinkedList<>();
+	        int cur = 0;
+	        int ncp = 0;
+	        int j = 0;
+	        int t = 0;
+	        int w = 0;
+
+	        for (int i = 0; i < n; i++) {
+	            pr[i] = new pro();
+	            pr[i].name = sc.next();
+	            pr[i].at = sc.nextInt();
+	            pr[i].bt = sc.nextInt();
+	            pr[i].rbt = pr[i].bt;
+	            pr[i].flag = 0;
+	        }
+
+	        Arrays.sort(pr, (a, b) -> Integer.compare(a.at, b.at));
+
+	        cur = pr[0].at;
+	        for (int i = 0; i < n; i++) {
+	            if (pr[i].at <= cur && pr[i].flag == 0) {
+	                q.add(i);
+	                pr[i].flag = 1;
+	            }
+	        }
+
+	        while (ncp < n) {
+	            j = q.poll();
+	            if (pr[j].rbt >= tq) {
+	                if (pr[j].rbt == pr[j].bt)
+	                    pr[j].st = cur;
+	                pr[j].rbt -= tq;
+	                cur += tq;
+	                pr[j].ft = cur;
+	            } else {
+	                if (pr[j].rbt == pr[j].bt)
+	                    pr[j].st = cur;
+
+	                cur += pr[j].rbt;
+	                pr[j].ft = cur;
+	                pr[j].rbt = 0;
+	            }
+
+	            for (int i = 0; i < n; i++) {
+	                if (pr[i].at <= cur && pr[i].flag == 0) {
+	                    q.add(i);
+	                    pr[i].flag = 1;
+	                }
+	            }
+	            if (pr[j].rbt == 0)
+	                ncp++;
+	            else
+	                q.add(j);
+	        }
+
+	        System.out.println("\n name\tArival Time\tBrust Time\tstart time\tfinishtime\t TurnAround\t wating\n");
+	        for (int i = 0; i < n; i++) {
+	            System.out.println(pr[i].toString());
+	        }
+	    }
+}

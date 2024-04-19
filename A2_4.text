@@ -1,0 +1,116 @@
+package os;
+
+import java.util.Scanner;
+
+public class Assignmet2_4 {
+	 static class Process {
+	        String p_name;
+	        int at, st, bt, ft, tat, wt, flag, priority;
+	    }
+
+	    public static void main(String[] args) {
+	        Scanner scanner = new Scanner(System.in);
+	        Process[] p = new Process[20];
+	        Process[] r = new Process[20];
+
+	        int n, ncp = 0, curr_time = 0;
+
+	        System.out.print("Enter total number of processes: ");
+	        n = scanner.nextInt();
+	        for (int i = 0; i < n; i++) {
+	            p[i] = new Process();
+	            System.out.print("\nEnter process name: ");
+	            p[i].p_name = scanner.next();
+	            System.out.print("Enter arrival time: ");
+	            p[i].at = scanner.nextInt();
+	            System.out.print("Enter burst time: ");
+	            p[i].bt = scanner.nextInt();
+	            System.out.print("Enter priority: ");
+	            p[i].priority = scanner.nextInt();
+	            p[i].flag = 0;
+	        }
+
+	        int j = 0;
+	        while (ncp < n) {
+	            int min = 1000;
+	            int min_i = -1;
+	            for (int i = 0; i < n; i++) {
+	                if (p[i].flag == 0 && p[i].at <= curr_time) {
+	                    if (min > p[i].priority) {
+	                        min = p[i].priority;
+	                        min_i = i;
+	                    }
+	                }
+	            }
+	            
+	            if (min_i != -1) {
+	            	p[min_i].flag = 1;
+	                r[j] = new Process();
+	                r[j].p_name = p[min_i].p_name;
+	                r[j].at = p[min_i].at;
+	                r[j].bt = p[min_i].bt;
+	                if (j == 0) {
+	                    r[j].st = r[j].at;
+	                    r[j].ft = r[j].st + r[j].bt;
+	                    r[j].tat = r[j].ft - r[j].at;
+	                    r[j].wt = r[j].tat - r[j].bt;
+	                } else {
+	                    if (r[j].at <= r[j - 1].ft)
+	                        r[j].st = r[j - 1].ft;
+	                    else
+	                        r[j].st = r[j].at;
+	                    r[j].ft = r[j].st + r[j].bt;
+	                    r[j].tat = r[j].ft - r[j].at;
+	                    r[j].wt = r[j].tat - r[j].bt;
+	                }
+	                curr_time += r[j].bt;
+	                j++;
+	                ncp++;
+	            } else {
+	                curr_time++;
+	            }
+	        }
+
+	        System.out.println("\nOUTPUT\n");
+	        System.out.println("\nprocess name\tarrival time\tstart time\tburst time\tfinish time\tturnaround time\twait time\n");
+	        int a = 0, b = 0;
+	        for (int i = 0; i < n; i++) {
+	            System.out.println(r[i].p_name + "\t\t" + r[i].at + "\t\t" + r[i].st + "\t\t" + r[i].bt + "\t\t" + r[i].ft +
+	                    "\t\t" + r[i].tat + "\t\t" + r[i].wt);
+	            a += r[i].wt;
+	            b += r[i].tat;
+	        }
+	        System.out.println("Average wait time is: " + ((float) a / n));
+	        System.out.println("Average turnaround time is: " + ((float) b / n));
+	        System.out.println("\nGantt chart");
+	        System.out.println("\n_____________________________________________________________________"
+	                + "_____________________________________________________________________________\n");
+
+	        for (int i = 0; i < n; i++) {
+	            if (i == 0)
+	                System.out.print("| " + r[i].p_name + "\t\t");
+	            else {
+	                if (r[i].st != r[i - 1].ft)
+	                    System.out.print("| idle\t\t");
+	                System.out.print("| " + r[i].p_name + "\t\t");
+	            }
+	        }
+	        System.out.print(" |");
+
+	        System.out.println("\n_____________________________________________________________________"
+	                + "_____________________________________________________________________________\n");
+
+	        for (int i = 0; i < n; i++) {
+	            if (i == 0) {
+	                System.out.print(" " + r[i].at + "\t\t");
+	                System.out.print(" " + r[i].ft + "\t\t");
+	            } else {
+	                if (r[i].st != r[i - 1].ft)
+	                    System.out.print(" " + r[i].at + "\t\t");
+	                System.out.print(" " + r[i].ft + "\t\t");
+	            }
+	        }
+	        System.out.println();
+	    }
+
+}

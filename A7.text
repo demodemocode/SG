@@ -1,0 +1,160 @@
+package os;
+
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.Map;
+import java.util.Queue;
+import java.util.Scanner;
+
+public class Assignment7 {
+    static void fifoPageReplacement(int[] pages, int n, int capacity) {
+        Queue<Integer> pageQueue = new LinkedList<>();
+        Map<Integer, Boolean> pageMap = new HashMap<>();
+        int pageFaults = 0;
+        for (int i = 0; i < n; i++) {
+            if (pageMap.size() < capacity) {
+                if (!pageMap.containsKey(pages[i])) {
+                    pageMap.put(pages[i], true);
+                    pageQueue.add(pages[i]);
+                    pageFaults++;
+                }
+            } else {
+                if (!pageMap.containsKey(pages[i])) {
+                    int oldestPage = pageQueue.poll();
+                    pageMap.remove(oldestPage);
+                    pageMap.put(pages[i], true);
+                    pageQueue.add(pages[i]);
+                    pageFaults++;
+                }
+            }
+            for (int page : pageMap.keySet()) {
+                System.out.print(page + " ");
+            }
+            System.out.println();
+        }
+        System.out.println("Total Page Faults (FIFO): " + pageFaults);
+    }
+
+    static void lruPageReplacement(int[] pages, int n, int capacity) {
+        Map<Integer, Integer> m = new HashMap<>();
+        int c = 1;
+        int pageFaults = 0;
+        for (int i = 0; i < n; i++) {
+            if (m.size() < capacity) {
+                if (!m.containsKey(pages[i])) {
+                    m.put(pages[i], c++);
+                    pageFaults++;
+                } else {
+                    m.put(pages[i], c++);
+                }
+            } else {
+                if (!m.containsKey(pages[i])) {
+                    int min = Integer.MAX_VALUE;
+                    int r = -1;
+                    for (int key : m.keySet()) {
+                        if (m.get(key) < min) {
+                            min = m.get(key);
+                            r = key;
+                        }
+                    }
+                    m.remove(r);
+                    m.put(pages[i], c++);
+                    pageFaults++;
+                } else {
+                    m.put(pages[i], c++);
+                }
+            }
+            for (int page : m.keySet()) {
+                System.out.print(page + " ");
+            }
+            System.out.println();
+        }
+        System.out.println("Total Page Faults (LRU): " + pageFaults);
+    }
+
+    static void optimal(int[] pages, int n, int capacity) {
+        Map<Integer, Integer> m = new HashMap<>();
+        int c = 0, Max, Max_index, flag = 0;
+        int pageFaults = 0;
+        for (int i = 0; i < n; i++) {
+            if (m.size() < capacity) {
+                if (!m.containsKey(pages[i])) {
+                    m.put(pages[i], i);
+                    pageFaults++;
+                }
+            } else {
+                if (!m.containsKey(pages[i])) {
+                    Max = -1;
+                    Max_index = -1;
+                    int f = 0;
+                    for (int key : m.keySet()) {//1234513
+                        flag = 0;
+                        for (int j = i + 1; j < n; j++) {
+                            if (pages[j] == key) {
+                                flag = 1;
+                                if (Max_index < j) {
+                                    Max_index = j;
+                                    Max = key;
+                                }
+                                break;
+                            }
+                        }
+                        if (flag == 0) {
+                            Max = key;
+                            Max_index = 100;
+                            break;
+                        }
+                    }
+                    m.remove(Max);
+                    m.put(pages[i], i);
+                    pageFaults++;
+                } else {
+                    m.put(pages[i], i);
+                }
+            }
+            for (int page : m.keySet()) {
+                System.out.print(page + " ");
+            }
+            System.out.println();
+        }
+        System.out.println("Total Page Faults (Optimal): " + pageFaults);
+    }
+
+    public static void main(String[] args) {
+        Scanner scanner = new Scanner(System.in);
+
+        System.out.print("Enter the number of memory page references: ");
+        int n = scanner.nextInt();
+        int[] pages = new int[n];
+
+        System.out.print("Enter the memory page references: ");
+        for (int i = 0; i < n; i++) {
+            pages[i] = scanner.nextInt();
+        }
+
+        System.out.print("Enter the capacity of the memory: ");
+        int capacity = scanner.nextInt();
+
+        int ch;
+        while (true) {
+            System.out.println("1. FIFO\n2. LRU\n3. OPTIMAL\n4. EXIT");
+            ch = scanner.nextInt();
+            switch (ch) {
+                case 1:
+                    fifoPageReplacement(pages, n, capacity);
+                    break;
+                case 2:
+                    lruPageReplacement(pages, n, capacity);
+                    break;
+                case 3:
+                    optimal(pages, n, capacity);
+                    break;
+                case 4:
+                    scanner.close();
+                    return;
+                default:
+                    System.out.println("Invalid choice!");
+            }
+        }
+    }
+}

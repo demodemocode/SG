@@ -1,0 +1,43 @@
+#include<stdio.h> 
+#include<unistd.h> 
+int main() { 
+ int pipefds1[2], pipefds2[2]; 
+ int returnstatus1, returnstatus2; 
+ int pid; 
+ char m1[20]; 
+ char m2[20]; 
+ char readmessage[20]; 
+  
+ // Taking user input for message 1 
+ printf("Enter message 1: "); 
+ fgets(m1, sizeof(m1), stdin); 
+  
+ // Taking user input for message 2 
+ printf("Enter message 2: "); 
+ fgets(m2, sizeof(m2), stdin); 
+  
+ returnstatus1 = pipe(pipefds1); 
+ if (returnstatus1 == -1) { 
+ printf("Unable to create pipe 1\n"); 
+ return 1; 
+ } 
+  
+ returnstatus2 = pipe(pipefds2); 
+ if (returnstatus2 == -1) { 
+ printf("Unable to create pipe 2\n"); 
+ return 1; 
+ } 
+  
+ pid = fork(); 
+ if (pid != 0) { // Parent process 
+ close(pipefds1[0]); // Close the unused pipe1 read side  close(pipefds2[1]); // Close the unused pipe2 write side   
+ printf("In Parent: Writing to pipe 1: %s\n", m1);  write(pipefds1[1], m1, sizeof(m1)); 
+  
+ read(pipefds2[0], readmessage, sizeof(readmessage));  printf("In Parent: Reading from pipe 2: %s\n", readmessage);  } else { // Child process 
+ close(pipefds1[1]); // Close the unused pipe1 write side  close(pipefds2[0]); // Close the unused pipe2 read side   
+ read(pipefds1[0], readmessage, sizeof(readmessage));  printf("In Child: Reading from pipe 1: %s\n", readmessage);   
+ printf("In Child: Writing to pipe 2: %s\n", m2);  write(pipefds2[1], m2, sizeof(m2)); 
+ } 
+  
+ return 0; 
+}

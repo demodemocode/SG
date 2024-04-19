@@ -1,0 +1,111 @@
+package os;
+
+import java.util.Scanner;
+
+public class Assignment5 {
+    private int numProcesses=0;
+    private int numResources=0;
+    private int[] available;
+    private int[][] maximum;
+    private int[][] allocation;
+    private int[][] need;
+
+    
+
+    public void getInput() {
+        Scanner scanner = new Scanner(System.in);
+        System.out.print("Enter the number of processes: ");
+        numProcesses = scanner.nextInt();
+        System.out.print("Enter the number of resources: ");
+        numResources = scanner.nextInt();
+
+        available = new int[numResources];
+        maximum = new int[numProcesses][numResources];
+        allocation = new int[numProcesses][numResources];
+        need = new int[numProcesses][numResources];
+
+        System.out.println("Enter the available instances of each resource:");
+        for (int i = 0; i < numResources; ++i) {
+            available[i] = scanner.nextInt();
+        }
+
+        System.out.println("Enter the maximum demand of each process:");
+        for (int i = 0; i < numProcesses; ++i) {
+            System.out.print("For process " + i + ": ");
+            for (int j = 0; j < numResources; ++j) {
+                maximum[i][j] = scanner.nextInt();
+            }
+        }
+
+        System.out.println("Enter the allocation of each process:");
+        for (int i = 0; i < numProcesses; ++i) {
+            System.out.print("For process " + i + ": ");
+            for (int j = 0; j < numResources; ++j) {
+                allocation[i][j] = scanner.nextInt();
+            }
+        }
+    }
+
+    public boolean isSafe() {
+        boolean[] finish = new boolean[numProcesses];
+        for (int i = 0; i < numProcesses; ++i)
+            finish[i] = false;
+
+        int[] work = new int[numResources];
+        for (int i = 0; i < numResources; ++i)
+            work[i] = available[i];
+
+        int[] safeSequence = new int[numProcesses];
+
+        int count = 0;
+        while (count < numProcesses) {
+            boolean found = false;
+            for (int i = 0; i < numProcesses; ++i) {
+                if (!finish[i]) {
+                    boolean allResourcesAvailable = true;
+                    for (int j = 0; j < numResources; ++j) {
+                        if (need[i][j] > work[j]) {
+                            allResourcesAvailable = false;
+                            break;
+                        }
+                    }
+                    if (allResourcesAvailable) {
+                        for (int j = 0; j < numResources; ++j)
+                            work[j] += allocation[i][j];
+                        finish[i] = true;
+                        safeSequence[count] = i;
+                        ++count;
+                        found = true;
+                    }
+                }
+            }
+            if (!found)
+                break;
+        }
+
+        if (count < numProcesses) {
+            System.out.println("Unsafe state! System is in deadlock.");
+            return false;
+        } else {
+            System.out.print("Safe state! Safe sequence: ");
+            for (int i = 0; i < numProcesses; ++i)
+                System.out.print(safeSequence[i] + " ");
+            System.out.println();
+            return true;
+        }
+    }
+
+    public void calculateNeedMatrix() {
+        for (int i = 0; i < numProcesses; ++i) {
+            for (int j = 0; j < numResources; ++j)
+                need[i][j] = maximum[i][j] - allocation[i][j];
+        }
+    }
+
+    public static void main(String[] args) {
+        Assignment5 banker = new Assignment5();
+        banker.getInput();
+        banker.calculateNeedMatrix();
+        banker.isSafe();
+    }
+}
